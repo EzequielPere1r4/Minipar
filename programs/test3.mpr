@@ -1,0 +1,52 @@
+programa_minipar
+
+SEQ
+print("Digite o valor de entrada:")
+input_val = input()
+
+print("Digite o valor desejado (0 ou 1):")
+output_desire = input()
+
+input_weight = 0.5
+bias_weight = 0.5
+bias = 1
+learning_rate = 0.01
+error = 1
+iteration = 0
+
+# Função de ativação
+def activation(s) {
+    if s >= 0 {
+        return 1
+    } else {
+        return 0
+    }
+}
+print("Entrada:")
+print(input_val)
+print("Desejado:")
+print(output_desire)
+while error != 0 {
+    iteration = iteration + 1
+    print("#### Iteração:")
+    print(iteration)
+    print("Peso:")
+    print(input_weight)
+    sum_val = (input_val * input_weight) + (bias * bias_weight)
+    output = activation(sum_val)
+    print("Saída:")
+    print(output)
+    error = output_desire - output
+    print("Erro:")
+    print(error)
+    if error != 0 {
+        input_weight = input_weight + (learning_rate * input_val * error)
+        print("Peso do bias:")
+        print(bias_weight)
+        bias_weight = bias_weight + (learning_rate * bias * error)
+    }
+}
+
+print("Parabéns!!! A Rede de um Neurônio Aprendeu")
+print("Valor desejado:")
+print(output_desire)

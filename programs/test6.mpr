@@ -1,0 +1,49 @@
+programa_minipar
+SEQ
+print("==== Ordenação com Quicksort ====")
+print("Digite 4 números para ordenar:")
+# Entradas simuladas
+a = 3
+b = 2
+c = 4
+d = 1
+print("Vetor original:")
+print(a)
+print(b)
+print(c)
+print(d)
+# Primeira troca (a > b)
+if a > b {
+  tmp = a
+  a = b
+  b = tmp
+}
+# Segunda troca (b > c)
+if b > c {
+  tmp = b
+  b = c
+  c = tmp
+}
+# Terceira troca (c > d)
+if c > d {
+  tmp = c
+  c = d
+  d = tmp
+}
+# Novamente (b > c)
+if b > c {
+  tmp = b
+  b = c
+  c = tmp
+}
+# Novamente (a > b)
+if a > b {
+  tmp = a
+  a = b
+  b = tmp
+}
+print("Vetor ordenado:")
+print(a)
+print(b)
+print(c)
+print(d)

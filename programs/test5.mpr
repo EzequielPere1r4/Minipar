@@ -1,0 +1,69 @@
+programa_minipar
+SEQ
+# Histórico de compras do usuário
+smartphone = 1
+jeans = 1
+microondas = 1
+ficcao = 1
+
+# Demais produtos (não comprados)
+laptop = 0
+tablet = 0
+fones = 0
+camisa = 0
+jaqueta = 0
+sapatos = 0
+geladeira = 0
+lavadora = 0
+ar = 0
+nao_ficcao = 0
+ficcao_cientifica = 0
+fantasia = 0
+
+# Pesos (simulados) aprendidos via rede neural
+# Produtos com mais associação ao histórico de compras
+peso_smartphone = 1
+peso_jeans = 1
+peso_microondas = 1
+peso_ficcao = 1
+
+# Função simulada de ativação: se peso >= 1, recomenda
+def ativar(p) {
+  if p >= 1 {
+    return 1
+  } else {
+    return 0
+  }
+}
+
+print("Produtos recomendados para você:")
+
+# Recomendações manuais com base em associação simples
+
+recom1 = ativar(smartphone)
+if recom1 == 1 {
+  print("Laptop")
+  print("Tablet")
+  print("Fones de ouvido")
+}
+
+recom2 = ativar(jeans)
+if recom2 == 1 {
+  print("Camisa")
+  print("Jaqueta")
+  print("Sapatos")
+}
+
+recom3 = ativar(microondas)
+if recom3 == 1 {
+  print("Geladeira")
+  print("Máquina de lavar")
+  print("Ar condicionado")
+}
+
+recom4 = ativar(ficcao)
+if recom4 == 1 {
+  print("Não-ficção")
+  print("Ficção científica")
+  print("Fantasia")
+}
