@@ -16,8 +16,8 @@ public class Config {
 
     // --- PONTO DE VARIAÇÃO 2: BACK-END ---
     // Mude para .COMPILER ou .INTERPRETER para escolher o back-end
-   // public static final BackendVariant BACKEND = BackendVariant.COMPILER; 
-    public static final BackendVariant BACKEND = BackendVariant.INTERPRETER; 
+   public static final BackendVariant BACKEND = BackendVariant.COMPILER; 
+   //public static final BackendVariant BACKEND = BackendVariant.INTERPRETER; 
 
     // (A Variante "não gerar código nenhum" é o nosso Interpretador)
 

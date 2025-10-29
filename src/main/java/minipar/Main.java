@@ -43,10 +43,7 @@ public class Main {
         }
     }
 
-    /**
-     * Este método contém toda a lógica para a variante TERMINAL.
-     * É baseado no seu Main.java original.
-     */
+  
     private static void runTerminal(String[] args) {
         
         // 1. Pega o nome do arquivo dos argumentos da linha de comando

@@ -1,16 +1,22 @@
 package minipar.gui;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import minipar.dto.RunRequest; // Certifique-se de que este DTO está no 'core'
+import minipar.dto.RunResponse; // Certifique-se de que este DTO está no 'core'
+
 import minipar.lexer.*;
 import minipar.lexer.Token;
 import minipar.parser.*;
 import minipar.semantic.*;
 import minipar.interpreter.*;
 
-// --- NOVOS IMPORTS ---
 import minipar.Config; // Importa a classe de configuração
 import minipar.ir.*;      // Importa o pacote de Geração de IR
 import minipar.backend.*; // Importa o pacote de Geração de Assembly
-// --- FIM NOVOS IMPORTS ---
 
 import javax.swing.*;
 import java.awt.*;
@@ -174,98 +180,72 @@ public class MiniParGUI extends JFrame {
         }
     }
 
-    // --- MÉTODO EXECUTAR ATUALIZADO ---
-    private void executarCodigo() {
-        // Limpa todas as áreas de saída
-        astArea.setText("");
-        outputArea.setText("");
-        irArea.setText("");       // NOVO
-        assemblyArea.setText(""); // NOVO
-        outputArea.setForeground(Color.GREEN); // Reseta a cor do console
+private void executarCodigo() {
+    // Limpa todas as áreas de saída
+    astArea.setText("");
+    outputArea.setText("");
+    irArea.setText("");
+    assemblyArea.setText("");
+    outputArea.setForeground(Color.GREEN);
+    statusLabel.setText("Conectando ao serviço...");
 
-        String codigoFonte = codeArea.getText();
-
-        if (codigoFonte.isBlank()) {
-            mostrarErro("Nenhum código fornecido.");
-            return;
-        }
-
-        try {
-            // --- FASES COMUNS (FRONT-END) ---
-            // 1. Análise Léxica
-            Lexer lexer = new Lexer(codigoFonte);
-            List<Token> tokens = lexer.tokenize();
-
-            // 2. Análise Sintática (Parsing)
-            Parser parser = new Parser(tokens);
-            ASTNode ast = parser.parseProgram();
-            astArea.setText(astToString(ast, "")); // Exibe a AST
-
-            // 3. Análise Semântica
-            SemanticAnalyzer sem = new SemanticAnalyzer();
-            sem.analyze(ast);
-
-            // --- PONTO DE VARIAÇÃO (BACK-END) ---
-            // Decide se vai INTERPRETAR ou COMPILAR
-            if (Config.BACKEND == Config.BackendVariant.INTERPRETER) {
-                
-                // --- MODO INTERPRETADOR (CÓDIGO ANTIGO) ---
-                statusLabel.setText("Modo: Interpretador");
-
-                // Redireciona entradas simuladas, se houver input()
-                InputStream simulatedIn = simulateInputs(codigoFonte);
-                InputStream originalIn = System.in;
-                System.setIn(simulatedIn);
-
-                // Captura a saída do console
-                PrintStream originalOut = System.out;
-                ByteArrayOutputStream outputCapture = new ByteArrayOutputStream();
-                System.setOut(new PrintStream(outputCapture));
-
-                // 4. Executa o interpretador
-                Interpreter interpreter = new Interpreter();
-                interpreter.execute(ast);
-
-                // Restaura saídas e entradas
-                System.setOut(originalOut);
-                System.setIn(originalIn);
-                outputArea.setText(outputCapture.toString());
-
-            } else if (Config.BACKEND == Config.BackendVariant.COMPILER) {
-                
-                // --- MODO COMPILADOR (CÓDIGO NOVO) ---
-                statusLabel.setText("Modo: Compilador (ARMv7)");
-                
-                // 4. Gerar Código Intermediário (IR)
-                IRGenerator irGen = new IRGenerator();
-                List<IRInstruction> irCode = irGen.generate(ast);
-                irArea.setText(irToString(irCode)); // Exibe o IR
-
-                // 5. Gerar Código Assembly
-                // **** LINHAS CORRIGIDAS ****
-                ArmV7Generator asmGen = new ArmV7Generator(irCode);
-                String assemblyCode = asmGen.generate();
-                // **** FIM DA CORREÇÃO ****
-                assemblyArea.setText(assemblyCode); // Exibe o Assembly
-
-                // 6. Mostrar mensagem no console
-                outputArea.setForeground(Color.CYAN); // Muda a cor para status
-                outputArea.setText("Compilação concluída com sucesso.\n");
-                outputArea.append("Código de 3 Endereços e Assembly ARMv7 gerados.");
-            }
-
-        } catch (Exception e) {
-            mostrarErro("Erro ao executar: " + e.getMessage());
-            e.printStackTrace(System.err); // Ajuda na depuração
-        }
+    String codigoFonte = codeArea.getText();
+    if (codigoFonte.isBlank()) {
+        mostrarErro("Nenhum código fornecido.");
+        return;
     }
 
+    try {
+        // 1. Determinar a variante
+        String variant = (Config.BACKEND == Config.BackendVariant.INTERPRETER) ? "interpret" : "compile";
+
+        // 2. Criar o corpo da requisição
+        RunRequest request = new RunRequest();
+        request.setCode(codigoFonte);
+        request.setVariant(variant);
+
+        // 3. Configurar Cliente HTTP e JSON
+        ObjectMapper objectMapper = new ObjectMapper();
+        String requestBody = objectMapper.writeValueAsString(request);
+        
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8080/run"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+
+        // 4. Enviar Requisição (Síncrona)
+        // No mundo real, faríamos isso em uma Thread separada, mas para simplicidade:
+        HttpResponse<String> httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+        // 5. Processar a Resposta
+        RunResponse response = objectMapper.readValue(httpResponse.body(), RunResponse.class);
+
+        if (response.isSuccess()) {
+            statusLabel.setText("Modo: " + variant);
+            outputArea.setText(response.getOutput());
+            irArea.setText(response.getIrCode());
+            assemblyArea.setText(response.getAssemblyCode());
+            
+            if("compile".equals(variant)) {
+                 outputArea.setForeground(Color.CYAN);
+            }
+        } else {
+            statusLabel.setText("Erro retornado pelo serviço");
+            mostrarErro(response.getError());
+        }
+
+    } catch (Exception e) {
+        mostrarErro("Falha ao conectar ao serviço: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
     private void mostrarErro(String msg) {
         JOptionPane.showMessageDialog(this, msg, "Erro", JOptionPane.ERROR_MESSAGE);
     }
 
     // --- NOVO MÉTODO HELPER ---
-    // Converte a lista de IR para uma String formatada
     private String irToString(List<IRInstruction> instructions) {
         StringBuilder sb = new StringBuilder();
         if (instructions == null) return "";
@@ -274,7 +254,6 @@ public class MiniParGUI extends JFrame {
         }
         return sb.toString();
     }
-    // --- FIM NOVO MÉTODO HELPER ---
 
     private String astToString(ASTNode node, String indent) {
         StringBuilder sb = new StringBuilder();

@@ -1,0 +1,36 @@
+ programa_minipar
+
+SEQ
+  print("Calculadora Sequencial Simples (Valores Fixos)")
+  
+  op = 3     
+  v1 = 10
+  v2 = 5
+  
+  res = 0
+
+  op = op + 0 
+  v1 = v1 + 0
+  v2 = v2 + 0
+
+  if (op == 1) {
+    res = v1 + v2
+  } else {
+    if (op == 2) {
+      res = v1 - v2
+    } else {
+      if (op == 3) {
+        res = v1 * v2
+      }
+
+    }
+  }
+
+  print("Operacao (simulada):")
+  print(op)
+  print("Valor 1 (simulado):")
+  print(v1)
+  print("Valor 2 (simulado):")
+  print(v2)
+  print("O resultado é:")
+  print(res)

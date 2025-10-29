@@ -82,7 +82,7 @@ public class IRGenerator {
         }
     }
 
-    /**
+/**
      * Imita o Interpreter.executeStatement()
      */
     public void generateStatement(ASTNode stmt) {
@@ -92,14 +92,19 @@ public class IRGenerator {
             case "if" -> generateIf(stmt);
             case "while" -> generateWhile(stmt);
 
+            // --- ESTA É A CORREÇÃO ---
+            // Se uma instrução for, na verdade, um sub-bloco (como SEQ dentro de PAR)
+            case "SEQ", "PAR", "Bloco" -> {
+                generateBlock(stmt); // Chame o gerador de bloco recursivamente
+            }
+            // --- FIM DA CORREÇÃO ---
+
             // Ignorados (não geram código)
-            // Agrupados com o novo estilo de switch
             case "Comentario", "c_channel", "def", "import" -> { 
                 /* Não faz nada */ 
             }
 
             // Ainda não suportados pelo gerador de IR (mas pode adicionar)
-            // Agrupados com o novo estilo de switch
             case "AtribuicaoIndice", "send", "receive", "return", "ChamadaFuncao", "for" -> {
                 // System.err.println("Instrução não suportada pelo IRGenerator: " + stmt.getType());
             }
@@ -107,7 +112,6 @@ public class IRGenerator {
             default -> throw new RuntimeException("Instrução não suportada pelo IRGenerator: " + stmt.getType());
         }
     }
-
     // --- Implementações de Geração de Statement ---
 
     private void generateAssignment(ASTNode stmt) {

@@ -1,0 +1,69 @@
+programa_minipar
+
+SEQ
+  smartphone = 1
+  jeans = 1
+  microondas = 1
+  ficcao = 1
+
+  laptop = 0
+  tablet = 0
+  fones = 0
+  camisa = 0
+  jaqueta = 0
+  sapatos = 0
+  geladeira = 0
+  lavadora = 0
+  ar = 0
+  nao_ficcao = 0
+  ficcao_cientifica = 0
+  fantasia = 0
+
+
+  peso_smartphone = smartphone 
+  peso_jeans = jeans
+  peso_microondas = microondas
+  peso_ficcao = ficcao
+
+  print("Produtos recomendados para você:")
+
+
+  recom1 = 0 # Inicializa como 0 
+  if peso_smartphone >= 1 {
+    recom1 = 1 # Ativa se o peso for >= 1
+  }
+  if recom1 == 1 {
+    print("Laptop")
+    print("Tablet")
+    print("Fones de ouvido")
+  }
+
+  recom2 = 0 
+  if peso_jeans >= 1 {
+    recom2 = 1
+  }
+  if recom2 == 1 {
+    print("Camisa")
+    print("Jaqueta")
+    print("Sapatos")
+  }
+
+  recom3 = 0
+  if peso_microondas >= 1 {
+    recom3 = 1
+  }
+  if recom3 == 1 {
+    print("Geladeira")
+    print("Máquina de lavar")
+    print("Ar condicionado")
+  }
+
+   recom4 = 0
+  if peso_ficcao >= 1 {
+    recom4 = 1
+  }
+   if recom4 == 1 {
+    print("Não-ficção")
+    print("Ficção científica")
+    print("Fantasia")
+  }
